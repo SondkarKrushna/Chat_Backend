@@ -17,40 +17,47 @@ const socketHandler = (io) => {
   });
 
   io.on("connection", (socket) => {
-  console.log("User connected:", socket.user);
+    console.log("User connected:", socket.user);
 
-  // 🔥 FIX: Safely extract correct userId
-  const userId = socket.user._id;
+    // 🔥 FIX: Safely extract correct userId
+    const userId = socket.user._id;
 
-  if (!userId) {
-    console.log("❌ User ID missing in token");
-    return;
-  }
+    if (!userId) {
+      console.log("❌ User ID missing in token");
+      return;
+    }
 
-  console.log("✅ Joining room:", userId);
+    // console.log("✅ Joining room:", userId);
 
-  socket.join(userId);
+    socket.join(userId);
 
-  socket.on("sendMessage", async ({ receiverId, message }) => {
-    console.log("📨 Message received:", { receiverId, message });
+    socket.on("sendMessage", async ({ receiverId, message }) => {
+      console.log("🔥 Server received message:", {
+        sender: socket.user,
+        receiverId,
+        message
+      });
+      console.log("📨 Message received:", { receiverId, message });
 
-    const newMessage = await Message.create({
-      sender: userId,
-      receiver: receiverId,
-      message,
+      const newMessage = await Message.create({
+        sender: userId,
+        receiver: receiverId,
+        message,
+      });
+
+      console.log("Joining room:", socket.user._id);
+
+      // Send to receiver
+      io.to(receiverId).emit("receiveMessage", newMessage);
+
+      // Send back to sender
+      io.to(userId).emit("receiveMessage", newMessage);
     });
 
-    // Send to receiver
-    io.to(receiverId).emit("receiveMessage", newMessage);
-
-    // Send back to sender
-    io.to(userId).emit("receiveMessage", newMessage);
+    socket.on("disconnect", () => {
+      console.log("User disconnected:", userId);
+    });
   });
-
-  socket.on("disconnect", () => {
-    console.log("User disconnected:", userId);
-  });
-});
 };
 
 module.exports = socketHandler;
