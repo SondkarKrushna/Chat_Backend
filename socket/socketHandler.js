@@ -19,39 +19,28 @@ const socketHandler = (io) => {
   io.on("connection", (socket) => {
     console.log("User connected:", socket.user);
 
-    // 🔥 FIX: Safely extract correct userId
-    const userId = socket.user._id;
+    // ✅ FIXED HERE
+    const userId = socket.user.id;
 
     if (!userId) {
       console.log("❌ User ID missing in token");
       return;
     }
 
-    // console.log("✅ Joining room:", userId);
-
-    socket.join(userId);
+    socket.join(userId.toString()); // safer
 
     socket.on("sendMessage", async ({ receiverId, message }) => {
-      console.log("🔥 Server received message:", {
-        sender: socket.user,
-        receiverId,
-        message
-      });
-      console.log("📨 Message received:", { receiverId, message });
-
       const newMessage = await Message.create({
         sender: userId,
         receiver: receiverId,
         message,
       });
 
-      console.log("Joining room:", socket.user._id);
-
       // Send to receiver
-      io.to(receiverId).emit("receiveMessage", newMessage);
+      io.to(receiverId.toString()).emit("receiveMessage", newMessage);
 
       // Send back to sender
-      io.to(userId).emit("receiveMessage", newMessage);
+      io.to(userId.toString()).emit("receiveMessage", newMessage);
     });
 
     socket.on("disconnect", () => {
