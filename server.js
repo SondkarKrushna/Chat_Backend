@@ -30,7 +30,7 @@ const io = new Server(server, {
     origin: [
       "http://localhost:5173",
       "http://localhost:5174",
-      "https://chat-frontend-green-tau.vercel.app/"
+      "https://chat-frontend-green-tau.vercel.app"
     ],
     credentials: true
   },
