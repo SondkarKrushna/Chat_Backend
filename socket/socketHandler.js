@@ -21,14 +21,14 @@ const socketHandler = (io) => {
   // userId -> Set of socketIds
 
   io.on("connection", (socket) => {
-    console.log("User connected:", socket.user);
+    // console.log("User connected:", socket.user);
 
     // 🔥 FIX: Safely extract correct userId
     const userId = socket.user.id;
-    console.log(socket.user.id)
+    // console.log(socket.user.id)
 
     if (!userId) {
-      console.log("❌ User ID missing in token");
+      // console.log("❌ User ID missing in token");
       return;
     }
 
@@ -51,7 +51,7 @@ const socketHandler = (io) => {
         receiverId,
         message
       });
-      console.log("📨 Message received:", { receiverId, message });
+      // console.log("📨 Message received:", { receiverId, message });
 
       const newMessage = await Message.create({
         sender: userId,
@@ -59,7 +59,7 @@ const socketHandler = (io) => {
         message,
       });
 
-      console.log("Joining room:", socket.user._id);
+      // console.log("Joining room:", socket.user._id);
 
       // Send to receiver
       io.to(receiverId).emit("receiveMessage", newMessage);
@@ -69,7 +69,7 @@ const socketHandler = (io) => {
     });
 
     socket.on("disconnect", () => {
-  console.log("User disconnected:", userId);
+  // console.log("User disconnected:", userId);
 
   if (onlineUsers.has(userId)) {
     onlineUsers.get(userId).delete(socket.id);
