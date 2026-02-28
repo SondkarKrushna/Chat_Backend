@@ -27,16 +27,18 @@ console.log("User route mounted");
 
 const io = new Server(server, {
   cors: {
-    origin: ["https://chat-frontend-green-tau.vercel.app", "http://localhost:3000"], // adjust
+    origin: ["https://chat-frontend-green-tau.vercel.app",
+             "http://localhost:5173",
+             "http://localhost:5174"], 
     methods: ["GET", "POST"],
     credentials: true
   },
-  // Very important on Render / proxies
-  pingTimeout: 60000,          // default 5000 → give more time
-  pingInterval: 25000,         // default 25000
-  upgradeTimeout: 10000,       // give time for websocket upgrade
-  transports: ["websocket", "polling"], // websocket first!
-  connectionStateRecovery: {}  // helps with reconnections
+  
+  pingTimeout: 60000,          
+  pingInterval: 25000,         
+  upgradeTimeout: 10000,       
+  transports: ["websocket", "polling"], 
+  connectionStateRecovery: {}  
 });
 
 socketHandler(io);
